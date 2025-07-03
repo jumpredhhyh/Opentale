@@ -130,7 +130,7 @@ pub fn generate_voxels(
                             if is_snow {
                                 BlockType::Snow
                             } else {
-                                BlockType::Grass(grass_color)
+                                BlockType::Grass
                             }
                         } else {
                             BlockType::Stone
@@ -165,20 +165,7 @@ pub fn generate_voxels(
                             // BlockType::StructureDebug(r, g, b) => (r, g, b),
                             _ => (0u8, 0u8, 0u8),
                         };
-                    blocks.set_block(
-                        [x as i32, top_terrain as i32, z as i32],
-                        BlockType::StructureDebug(
-                            (structure_value * structure_metadata.debug_rgb_multiplier[0] * 255.)
-                                as u8
-                                + current_color.0,
-                            (structure_value * structure_metadata.debug_rgb_multiplier[1] * 255.)
-                                as u8
-                                + current_color.1,
-                            (structure_value * structure_metadata.debug_rgb_multiplier[2] * 255.)
-                                as u8
-                                + current_color.2,
-                        ),
-                    );
+                    blocks.set_block([x as i32, top_terrain as i32, z as i32], BlockType::Stone);
                 }
                 let mut rand = StdRng::seed_from_u64((structure_value.abs() * 10000.) as u64);
 

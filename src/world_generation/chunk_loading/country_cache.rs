@@ -17,7 +17,6 @@ use std::time::Instant;
 #[derive(Clone)]
 pub struct CountryCache {
     pub country_pos: IVec2,
-    pub grass_color: BlockType,
     pub structure_cache: Arc<StructureCache>,
     pub this_path_cache: Arc<PathCache>,
     pub bottom_path_cache: Arc<PathCache>,
@@ -207,7 +206,6 @@ impl GenerationCacheItem<IVec2> for CountryCache {
 
         Self {
             country_pos: key,
-            grass_color: BlockType::Custom(rng.random(), rng.random(), rng.random()),
             structure_cache: generation_options
                 .structure_cache
                 .get_cache_entry(key, generation_options),

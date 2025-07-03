@@ -10,24 +10,26 @@ use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
 use spellhaven::animations::AnimationPlugin;
 use spellhaven::debug_tools::debug_resource::SpellhavenDebugPlugin;
 use spellhaven::player::PlayerPlugin;
-use spellhaven::terrain_material::TerrainMaterial;
 use spellhaven::ui::ui::GameUiPlugin;
 use spellhaven::world_generation::chunk_generation::ChunkGenerationPlugin;
+use spellhaven::world_generation::WorldGenerationPlugin;
 use std::f32::consts::PI;
 
 fn main() {
     App::new()
         .add_plugins((
-            DefaultPlugins.set(WindowPlugin {
-                primary_window: Some(Window {
-                    title: "Spellhaven".into(),
-                    present_mode: PresentMode::Immediate,
+            DefaultPlugins
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        title: "Spellhaven".into(),
+                        present_mode: PresentMode::Immediate,
+                        ..default()
+                    }),
                     ..default()
-                }),
-                ..default()
-            }),
+                })
+                .set(ImagePlugin::default_nearest()),
             PanOrbitCameraPlugin,
-            ChunkGenerationPlugin,
+            WorldGenerationPlugin,
             AtmospherePlugin,
             RapierPhysicsPlugin::<NoUserData>::default(),
             //RapierDebugRenderPlugin::default(),
@@ -41,7 +43,6 @@ fn main() {
             WorldInspectorPlugin::new(),
             GameUiPlugin,
             SpellhavenDebugPlugin,
-            MaterialPlugin::<ExtendedMaterial<StandardMaterial, TerrainMaterial>>::default(),
         ))
         .add_systems(Startup, setup)
         .insert_resource(WireframeConfig {

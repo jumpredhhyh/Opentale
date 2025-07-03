@@ -212,7 +212,7 @@ fn vox_data_to_blocks(vox_data: &VoxData) -> Vec<Vec<Vec<BlockType>>> {
     for voxel in model.voxels.iter() {
         let color = vox_data.palette.colors[voxel.color_index.0 as usize];
         result[voxel.point.x as usize][voxel.point.z as usize][voxel.point.y as usize] =
-            BlockType::Custom(color.r, color.g, color.b);
+            BlockType::Stone;
     }
 
     result

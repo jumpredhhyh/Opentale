@@ -1,5 +1,3 @@
-use std::ops::Neg;
-
 use crate::world_generation::chunk_generation::{CHUNK_SIZE, VOXEL_SIZE};
 use crate::world_generation::voxel_world::ChunkLod;
 use bevy::prelude::*;
@@ -8,18 +6,25 @@ use bevy::render::render_asset::RenderAssetUsages;
 
 use super::voxel_types::VoxelData;
 
+const ATLAS_WIDTH: u32 = 1024;
+const ATLAS_HEIGHT: u32 = 512;
+
 pub fn generate_mesh(
     blocks: &VoxelData,
     min_height: i32,
     chunk_lod: ChunkLod,
 ) -> Option<(Mesh, Vec<Vec3>, Vec<[u32; 3]>)> {
-    let mut mesh = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::all());
+    let mut mesh = Mesh::new(
+        PrimitiveTopology::TriangleList,
+        RenderAssetUsages::RENDER_WORLD,
+    );
 
     let mut positions: Vec<[f32; 3]> = Vec::new();
     let mut normals: Vec<[f32; 3]> = Vec::new();
     let mut triangles: Vec<[u32; 3]> = Vec::new();
+    let mut uvs: Vec<[f32; 2]> = Vec::new();
 
-    fn rotate_into_direction<T: Vec3Swizzles + Neg<Output = T>>(vector: T, direction: IVec3) -> T {
+    fn rotate_into_direction<T: Vec3Swizzles>(vector: T, direction: IVec3) -> T {
         match direction {
             IVec3::X | IVec3::NEG_X => vector.xzy(),
             IVec3::Y | IVec3::NEG_Y => vector.yxz(),
@@ -49,13 +54,15 @@ pub fn generate_mesh(
                         continue;
                     }
 
+                    let current_block = blocks.get_block(current_pos);
+
                     let mut height = 1;
                     let mut width = 1;
 
                     while height_pos + height <= CHUNK_SIZE as i32
                         && !done_faces[width_pos as usize - 1]
                             [height_pos as usize + height as usize - 1]
-                        && !blocks.is_air(current_pos + (height_dir * height))
+                        && blocks.get_block(current_pos + (height_dir * height)) == current_block
                         && blocks.is_air(current_pos + (height_dir * height) + direction)
                     {
                         height += 1;
@@ -65,11 +72,11 @@ pub fn generate_mesh(
                         && (0..height).all(|height| {
                             !done_faces[width_pos as usize + width as usize - 1]
                                 [height_pos as usize + height as usize - 1]
-                                && !blocks.is_air(
+                                && blocks.get_block(
                                     current_pos
                                         + (width_dir * width as i32)
                                         + (height_dir * height as i32),
-                                )
+                                ) == current_block
                                 && blocks.is_air(
                                     current_pos
                                         + (width_dir * width as i32)
@@ -131,6 +138,23 @@ pub fn generate_mesh(
                         direction.as_vec3().to_array(),
                     ]);
 
+                    let texture_size = Vec2::new(ATLAS_WIDTH as f32, ATLAS_HEIGHT as f32);
+                    let texture_index = current_block.get_texture_index().as_vec2() * 16.;
+                    let uv_start = Vec2::new(
+                        texture_index.x / texture_size.x,
+                        texture_index.y / texture_size.y,
+                    );
+                    let uv_end = uv_start + Vec2::new(16. / texture_size.x, 16. / texture_size.y);
+
+                    // info!("Uv positions: {}, {}", uv_start, uv_end);
+
+                    uvs.extend_from_slice(&[
+                        [uv_end.x, uv_end.y],
+                        [uv_start.x, uv_end.y],
+                        [uv_start.x, uv_start.y],
+                        [uv_end.x, uv_start.y],
+                    ]);
+
                     let invert = !direction.min_element() < 0;
 
                     triangles.extend_from_slice(&[
@@ -189,6 +213,7 @@ pub fn generate_mesh(
 
     mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, positions);
     mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
+    mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
 
     mesh.insert_indices(Indices::U32(mesh_triangles));
 

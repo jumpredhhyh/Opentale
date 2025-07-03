@@ -1,6 +1,5 @@
 use crate::debug_tools::debug_resource::SpellhavenDebug;
 use crate::player::Player;
-use crate::terrain_material::TerrainMaterial;
 use crate::world_generation::chunk_generation::voxel_generation::get_terrain_noise;
 use crate::world_generation::chunk_loading::chunk_loader::{
     get_chunk_position, ChunkLoader, ChunkLoaderPlugin,
@@ -11,12 +10,12 @@ use crate::world_generation::chunk_loading::quad_tree_data::QuadTreeNode::{Data,
 use crate::world_generation::generation_options::{
     GenerationCacheItem, GenerationOptionsResource, GenerationState,
 };
+use crate::world_generation::texture_loading::TextureAtlasHandle;
 use crate::world_generation::voxel_world::{
     ChunkGenerationResult, ChunkLod, QuadTreeVoxelWorld, VoxelWorld, MAX_LOD,
 };
 use ::noise::{Add, Constant, NoiseFn};
 use bevy::math::Vec3A;
-use bevy::pbr::ExtendedMaterial;
 use bevy::prelude::*;
 use bevy::tasks::{Task, TaskPool, TaskPoolBuilder};
 use bevy_rapier3d::prelude::{Collider, RigidBody};
@@ -35,7 +34,7 @@ pub mod voxel_types;
 
 //pub const LEVEL_OF_DETAIL: i32 = 1;
 pub const CHUNK_SIZE: usize = 64;
-pub const VOXEL_SIZE: f32 = 0.25;
+pub const VOXEL_SIZE: f32 = 1.0;
 
 pub struct ChunkTaskData {
     pub mesh: Mesh,
@@ -47,39 +46,19 @@ pub struct ChunkTaskData {
 pub enum BlockType {
     Air,
     Stone,
-    Grass(u8),
-    Sand,
+    Grass,
     Path,
     Snow,
-    Gray(u8),
-    Custom(u8, u8, u8),
-    StructureDebug(u8, u8, u8),
 }
 
 impl BlockType {
-    pub fn get_color(&self) -> [f32; 4] {
+    pub fn get_texture_index(&self) -> IVec2 {
         match self {
-            BlockType::Air => [0., 0., 0., 0.],
-            BlockType::Stone => [150. / 255., 160. / 255., 155. / 255., 1.],
-            BlockType::Grass(hue_offset) => {
-                let color = Color::hsl(150. - (*hue_offset as f32 / 2.), 0.56, 0.49);
-                color.to_srgba().to_f32_array()
-            }
-            BlockType::Gray(value) => [
-                *value as f32 / 255.,
-                *value as f32 / 255.,
-                *value as f32 / 255.,
-                1.,
-            ],
-            BlockType::Sand => [225. / 255., 195. / 255., 90. / 255., 1.],
-            BlockType::Custom(r, g, b) => {
-                [*r as f32 / 255., *g as f32 / 255., *b as f32 / 255., 1.]
-            }
-            BlockType::StructureDebug(r, g, b) => {
-                [*r as f32 / 255., *g as f32 / 255., *b as f32 / 255., 1.]
-            }
-            BlockType::Path => [100. / 255., 65. / 255., 50. / 255., 1.],
-            BlockType::Snow => [5., 5., 5., 1.],
+            BlockType::Path => IVec2::new(25, 2),
+            BlockType::Grass => IVec2::new(29, 18),
+            BlockType::Stone => IVec2::new(30, 29),
+            BlockType::Snow => IVec2::new(9, 29),
+            _ => IVec2::ZERO,
         }
     }
 }
@@ -624,9 +603,10 @@ fn set_generated_chunks(
     mut commands: Commands,
     mut chunks: Query<(Entity, &mut ChunkGenerationTask)>,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ExtendedMaterial<StandardMaterial, TerrainMaterial>>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
     mut voxel_world: ResMut<QuadTreeVoxelWorld>,
     mut chunk_triangles: ResMut<ChunkTriangles>,
+    texture_atlas: Option<Res<TextureAtlasHandle>>,
 ) {
     for (entity, mut task) in &mut chunks {
         if let Some(chunk_generation_result) = future::block_on(future::poll_once(&mut task.0)) {
@@ -698,6 +678,10 @@ fn set_generated_chunks(
             if let Ok(mut current_entity) = commands.get_entity(entity) {
                 if let Some(chunk_task_data) = chunk_generation_result.task_data {
                     let triangle_count = chunk_task_data.mesh.indices().unwrap().len() / 3;
+                    let texture_atlas = match texture_atlas {
+                        Some(ref ta) => Some(ta.handle.clone()),
+                        None => None,
+                    };
 
                     chunk_triangles.0[chunk_generation_result.lod.usize() - 1] +=
                         triangle_count as u64;
@@ -705,16 +689,21 @@ fn set_generated_chunks(
                     current_entity.remove::<ChunkGenerationTask>().insert((
                         chunk_task_data.transform,
                         Mesh3d(meshes.add(chunk_task_data.mesh)),
-                        MeshMaterial3d(materials.add(ExtendedMaterial {
-                            base: Color::WHITE.into(),
-                            extension: TerrainMaterial {
-                                chunk_blocks: chunk_generation_result.voxel_data.array,
-                                palette: chunk_generation_result.voxel_data.palette,
-                                chunk_pos: chunk_generation_result.chunk_pos,
-                                chunk_lod: chunk_generation_result.lod.multiplier_i32(),
-                                min_chunk_height: chunk_generation_result.min_height,
-                            },
+                        MeshMaterial3d(materials.add(StandardMaterial {
+                            base_color_texture: texture_atlas,
+                            alpha_mode: AlphaMode::Opaque,
+                            ..Default::default()
                         })),
+                        // MeshMaterial3d(materials.add(ExtendedMaterial {
+                        //     base: Color::WHITE.into(),
+                        //     extension: TerrainMaterial {
+                        //         chunk_blocks: chunk_generation_result.voxel_data.array,
+                        //         palette: chunk_generation_result.voxel_data.palette,
+                        //         chunk_pos: chunk_generation_result.chunk_pos,
+                        //         chunk_lod: chunk_generation_result.lod.multiplier_i32(),
+                        //         min_chunk_height: chunk_generation_result.min_height,
+                        //     },
+                        // })),
                         Chunk([
                             chunk_generation_result.parent_pos[0],
                             chunk_generation_result.chunk_height,

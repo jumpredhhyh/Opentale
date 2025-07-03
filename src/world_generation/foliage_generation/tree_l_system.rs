@@ -1,6 +1,9 @@
 use crate::{
     utils::{rotate_around, vec_round_to_int, RotationDirection},
-    world_generation::chunk_generation::{BlockType, VOXEL_SIZE},
+    world_generation::{
+        chunk_generation::{BlockType, VOXEL_SIZE},
+        foliage_generation::entry_range::EntryRange,
+    },
 };
 use bevy::math::Vec3;
 use rand::{rngs::StdRng, Rng};
@@ -147,7 +150,7 @@ pub trait LSystem<EntryEnum: Clone + Copy> {
     fn create_straight_piece_dir(
         pos: Vec3,
         direction: Vec3,
-        thickness: f32,
+        thickness: EntryRange,
         length: usize,
         between_piece: EntryEnum,
         tip_piece: EntryEnum,
@@ -158,13 +161,13 @@ pub trait LSystem<EntryEnum: Clone + Copy> {
             pieces.push(LSystemEntry {
                 pos: pos + direction * i as f32,
                 entry_type: between_piece,
-                thickness,
+                thickness: thickness.get_value(i as f32 / length as f32),
             });
         }
         pieces.push(LSystemEntry {
             pos: pos + direction * length as f32,
             entry_type: tip_piece,
-            thickness,
+            thickness: thickness.end,
         });
 
         pieces
