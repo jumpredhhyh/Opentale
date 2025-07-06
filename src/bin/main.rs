@@ -11,7 +11,7 @@ use spellhaven::animations::AnimationPlugin;
 use spellhaven::debug_tools::debug_resource::SpellhavenDebugPlugin;
 use spellhaven::player::PlayerPlugin;
 use spellhaven::ui::ui::GameUiPlugin;
-use spellhaven::world_generation::chunk_generation::ChunkGenerationPlugin;
+use spellhaven::world_generation::array_texture::ArrayTextureMaterial;
 use spellhaven::world_generation::WorldGenerationPlugin;
 use std::f32::consts::PI;
 
@@ -43,6 +43,7 @@ fn main() {
             WorldInspectorPlugin::new(),
             GameUiPlugin,
             SpellhavenDebugPlugin,
+            MaterialPlugin::<ExtendedMaterial<StandardMaterial, ArrayTextureMaterial>>::default(),
         ))
         .add_systems(Startup, setup)
         .insert_resource(WireframeConfig {

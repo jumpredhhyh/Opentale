@@ -33,6 +33,7 @@ impl GenerationOptionsResource {
         Self {
             0: Arc::new(GenerationOptions {
                 seed,
+                generate_paths: false,
                 path_cache: GenerationCache::new(),
                 structure_cache: GenerationCache::new(),
                 structure_generators: vec![
@@ -111,6 +112,7 @@ pub struct GenerationOptions {
     pub structure_assets: Vec<StructureAsset>,
     pub path_cache: GenerationCache<IVec2, PathCache>,
     pub structure_cache: GenerationCache<IVec2, StructureCache>,
+    pub generate_paths: bool,
 }
 
 pub trait GenerationCacheItem<K: Copy + Eq + Hash> {

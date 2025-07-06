@@ -1,3 +1,4 @@
+use crate::world_generation::array_texture::ATTRIBUTE_TEXTURE_ID;
 use crate::world_generation::chunk_generation::{CHUNK_SIZE, VOXEL_SIZE};
 use crate::world_generation::voxel_world::ChunkLod;
 use bevy::prelude::*;
@@ -5,9 +6,6 @@ use bevy::render::mesh::{Indices, PrimitiveTopology};
 use bevy::render::render_asset::RenderAssetUsages;
 
 use super::voxel_types::VoxelData;
-
-const ATLAS_WIDTH: u32 = 1024;
-const ATLAS_HEIGHT: u32 = 512;
 
 pub fn generate_mesh(
     blocks: &VoxelData,
@@ -23,6 +21,7 @@ pub fn generate_mesh(
     let mut normals: Vec<[f32; 3]> = Vec::new();
     let mut triangles: Vec<[u32; 3]> = Vec::new();
     let mut uvs: Vec<[f32; 2]> = Vec::new();
+    let mut texture_ids: Vec<u32> = Vec::new();
 
     fn rotate_into_direction<T: Vec3Swizzles>(vector: T, direction: IVec3) -> T {
         match direction {
@@ -94,6 +93,16 @@ pub fn generate_mesh(
                         }
                     }
 
+                    let uv_start = Vec2::ZERO;
+                    let uv_end = Vec2::new(width as f32, height as f32);
+
+                    uvs.extend_from_slice(&[
+                        [uv_end.x, uv_end.y],
+                        [uv_start.x, uv_end.y],
+                        [uv_start.x, uv_start.y],
+                        [uv_end.x, uv_start.y],
+                    ]);
+
                     let height = height as f32 - 1.;
                     let width = width as f32 - 1.;
 
@@ -138,22 +147,10 @@ pub fn generate_mesh(
                         direction.as_vec3().to_array(),
                     ]);
 
-                    let texture_size = Vec2::new(ATLAS_WIDTH as f32, ATLAS_HEIGHT as f32);
-                    let texture_index = current_block.get_texture_index().as_vec2() * 16.;
-                    let uv_start = Vec2::new(
-                        texture_index.x / texture_size.x,
-                        texture_index.y / texture_size.y,
-                    );
-                    let uv_end = uv_start + Vec2::new(16. / texture_size.x, 16. / texture_size.y);
+                    let texture_id = current_block.get_texture_id();
 
-                    // info!("Uv positions: {}, {}", uv_start, uv_end);
-
-                    uvs.extend_from_slice(&[
-                        [uv_end.x, uv_end.y],
-                        [uv_start.x, uv_end.y],
-                        [uv_start.x, uv_start.y],
-                        [uv_end.x, uv_start.y],
-                    ]);
+                    texture_ids
+                        .extend_from_slice(&[texture_id, texture_id, texture_id, texture_id]);
 
                     let invert = !direction.min_element() < 0;
 
@@ -214,6 +211,7 @@ pub fn generate_mesh(
     mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, positions);
     mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
     mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
+    mesh.insert_attribute(ATTRIBUTE_TEXTURE_ID, texture_ids);
 
     mesh.insert_indices(Indices::U32(mesh_triangles));
 

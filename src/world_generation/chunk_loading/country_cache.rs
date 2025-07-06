@@ -1,7 +1,6 @@
 use crate::world_generation::chunk_generation::noise::full_cache::FullCache;
 use crate::world_generation::chunk_generation::noise::lod_height_adjuster::LodHeightAdjuster;
 use crate::world_generation::chunk_generation::voxel_generation::get_terrain_noise;
-use crate::world_generation::chunk_generation::BlockType;
 use crate::world_generation::generation_options::{GenerationCacheItem, GenerationOptions};
 use crate::world_generation::voxel_world::ChunkLod;
 use bevy::log::info;
@@ -202,8 +201,6 @@ impl Ord for AStarCandidate {
 
 impl GenerationCacheItem<IVec2> for CountryCache {
     fn generate(key: IVec2, generation_options: &GenerationOptions) -> Self {
-        let mut rng = rand::rng();
-
         Self {
             country_pos: key,
             structure_cache: generation_options
@@ -248,6 +245,10 @@ impl GenerationCacheItem<IVec2> for StructureCache {
 
 impl GenerationCacheItem<IVec2> for PathCache {
     fn generate(key: IVec2, generation_options: &GenerationOptions) -> Self {
+        if !generation_options.generate_paths {
+            return Self { paths: vec![] };
+        }
+
         let top_country_pos = key + IVec2::X;
         let right_country_pos = key + IVec2::Y;
 
@@ -292,12 +293,6 @@ impl PathCache {
         path_finding_lod: ChunkLod,
         generation_options: &GenerationOptions,
     ) -> Path {
-        // return Path {
-        //     lines: vec![],
-        //     box_pos_start: Default::default(),
-        //     box_pos_end: Default::default(),
-        // };
-
         start_pos /= path_finding_lod.multiplier_i32();
         end_pos /= path_finding_lod.multiplier_i32();
 
