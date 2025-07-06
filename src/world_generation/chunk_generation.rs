@@ -42,7 +42,7 @@ pub struct ChunkTaskData {
     pub collider: Option<Collider>,
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum BlockType {
     Air,
     Stone,
