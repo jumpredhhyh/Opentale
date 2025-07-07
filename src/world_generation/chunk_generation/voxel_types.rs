@@ -285,7 +285,7 @@ impl VoxelData {
             return;
         }
 
-        panic!("{index} was out of bounds at position {:?}", position.into());
+        panic!("{index} from position {:?} was out of bounds for {:?}", position.into(), self.array);
     }
 
     /// We return the index in voxel data, so we can avoid redudant checks.
@@ -499,7 +499,7 @@ impl VoxelData {
             return (next_index, RunLength(count));
         }
 
-        panic!("{index} was out of bounds");
+        panic!("{index} from position {:?} was out of bounds for {:?}", position.into(), self.array);
     }
 
     fn position_to_indexes<T: Into<IVec3>>(position: T) -> usize {
