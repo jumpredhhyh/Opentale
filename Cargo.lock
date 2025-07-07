@@ -3848,6 +3848,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cde51589ab56b20a6f686b2c68f7a0bd6add753d697abf720d63f8db3ab7b1ad"
 
 [[package]]
+name = "opentale"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy-inspector-egui",
+ "bevy_atmosphere",
+ "bevy_panorbit_camera",
+ "bevy_rapier3d",
+ "bitflags 2.9.1",
+ "brunch",
+ "epaint",
+ "fastnoise-lite",
+ "fastrand",
+ "futures-lite",
+ "noise",
+ "num-traits",
+ "rand 0.9.1",
+ "vox-format",
+]
+
+[[package]]
 name = "orbclient"
 version = "0.3.47"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4772,27 +4793,6 @@ dependencies = [
  "num-traits",
  "robust",
  "smallvec",
-]
-
-[[package]]
-name = "spellhaven"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "bevy-inspector-egui",
- "bevy_atmosphere",
- "bevy_panorbit_camera",
- "bevy_rapier3d",
- "bitflags 2.9.1",
- "brunch",
- "epaint",
- "fastnoise-lite",
- "fastrand",
- "futures-lite",
- "noise",
- "num-traits",
- "rand 0.9.1",
- "vox-format",
 ]
 
 [[package]]

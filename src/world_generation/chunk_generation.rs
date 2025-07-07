@@ -1,4 +1,4 @@
-use crate::debug_tools::debug_resource::SpellhavenDebug;
+use crate::debug_tools::debug_resource::OpentaleDebugResource;
 use crate::player::Player;
 use crate::world_generation::chunk_generation::voxel_generation::get_terrain_noise;
 use crate::world_generation::chunk_loading::chunk_loader::{
@@ -746,7 +746,7 @@ fn draw_path_gizmos(
     mut gizmos: Gizmos,
     generation_options: Res<GenerationOptionsResource>,
     players: Query<&Transform, With<Player>>,
-    debug_resource: Res<SpellhavenDebug>,
+    debug_resource: Res<OpentaleDebugResource>,
 ) {
     if !debug_resource.show_path_debug {
         return;

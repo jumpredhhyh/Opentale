@@ -1,5 +1,5 @@
-use crate::debug_tools::debug_resource::SpellhavenDebug;
-use crate::ui::ui::UiSpawnCallback;
+use crate::debug_tools::debug_resource::OpentaleDebugResource;
+use crate::ui::game_ui_plugin::UiSpawnCallback;
 use crate::world_generation::chunk_generation::VOXEL_SIZE;
 use crate::world_generation::chunk_loading::chunk_loader::ChunkLoader;
 use bevy::core_pipeline::experimental::taa::TemporalAntiAliasPlugin;
@@ -134,7 +134,7 @@ fn move_body(
 fn move_camera(
     player: Query<&Transform, (With<Player>, Without<PlayerCamera>)>,
     mut camera: Query<&mut PanOrbitCamera, (With<PlayerCamera>, Without<Player>)>,
-    options: Res<SpellhavenDebug>,
+    options: Res<OpentaleDebugResource>,
 ) {
     if options.unlock_camera {
         return;

@@ -1,21 +1,19 @@
-use crate::ui::fps_text::*;
-use crate::ui::main_menu::MainMenuPlugin;
-use crate::ui::task_text::{update_task_ui, ChunkTaskText, CountryTaskText};
-use bevy::app::App;
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
+
+use crate::ui::fps_text::{update_fps_ui, FpsText};
+use crate::ui::main_menu_plugin::MainMenuPlugin;
+use crate::ui::task_text::{update_task_ui, ChunkTaskText, CountryTaskText};
+use crate::ui::triangle_count_text::{update_triangle_ui, TriangleText};
 
 pub struct GameUiPlugin;
 
 impl Plugin for GameUiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins((
-            FrameTimeDiagnosticsPlugin::default(),
-            MainMenuPlugin::default(),
-        ))
-        .add_systems(Startup, register_spawn_ui_system)
-        .add_systems(Update, (update_fps_ui, update_task_ui, update_triangle_ui));
+        app.add_plugins((FrameTimeDiagnosticsPlugin::default(), MainMenuPlugin))
+            .add_systems(Startup, register_spawn_ui_system)
+            .add_systems(Update, (update_fps_ui, update_task_ui, update_triangle_ui));
     }
 }
 
