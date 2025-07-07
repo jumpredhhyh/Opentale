@@ -403,6 +403,7 @@ impl VoxelData {
                         *block_type = block;
 
                         next_index = i + 1;
+                        count += 1;
                     }
                 }
                 (0, _) => {
