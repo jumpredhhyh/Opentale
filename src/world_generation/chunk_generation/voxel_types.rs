@@ -51,6 +51,11 @@ pub const CHUNK_LENGTH: usize = (CHUNK_SIZE + 2) * (CHUNK_SIZE + 2) * (CHUNK_SIZ
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct RunLength(pub u32);
 
+/// VoxelArray is flattened with bias in the y axis in the xy plane
+/// 
+/// This is done for performance reasons, since typically when generating
+/// voxels, we look at a line of blocks in the y axis, and we want to
+/// amortize block querys and placements. 
 pub type VoxelArray = Vec<(BlockType, RunLength)>;
 pub type VoxelPalette = [Vec4<u32>; 128];
 
@@ -454,8 +459,10 @@ impl VoxelData {
 
     fn position_to_indexes<T: Into<IVec3>>(position: T) -> usize {
         let position: IVec3 = position.into();
-        let index = position.x as usize
-            + (position.y as usize * (CHUNK_SIZE + 2))
+        // We index like this so we have a bias in the y axis,
+        // making amortization easy in certain contexts
+        let index = position.y as usize
+            + (position.x as usize * (CHUNK_SIZE + 2))
             + (position.z as usize * (CHUNK_SIZE + 2) * (CHUNK_SIZE + 2));
         index
     }
@@ -487,10 +494,10 @@ mod test {
 
         let positions = [
             IVec3::new(0, 0, 0),
-            IVec3::new(4, 0, 0),
-            IVec3::new(8, 0, 0),
-            IVec3::new(12, 0, 0),
-            IVec3::new(16, 0, 0),
+            IVec3::new(0, 4, 0),
+            IVec3::new(0, 8, 0),
+            IVec3::new(0, 12, 0),
+            IVec3::new(0, 16, 0),
         ];
 
         let indices = [0, 4, 8, 12, 16];
@@ -557,7 +564,7 @@ mod test {
             [BlockType::Stone; 6]
         ].concat();
         
-        let positions = (0..18).map(|x| IVec3::new(x, 0, 0));
+        let positions = (0..18).map(|y| IVec3::new(0, y, 0));
 
         let mut start = (0, RunLength(0));
         for (test_block, position) in test_blocks.into_iter().zip(positions) {
@@ -595,10 +602,10 @@ mod test {
 
         let positions = [
             IVec3::new(0, 0, 0),
-            IVec3::new(4, 0, 0),
-            IVec3::new(8, 0, 0),
-            IVec3::new(12, 0, 0),
-            IVec3::new(16, 0, 0),
+            IVec3::new(0, 4, 0),
+            IVec3::new(0, 8, 0),
+            IVec3::new(0, 12, 0),
+            IVec3::new(0, 16, 0),
         ];
 
         let indices = [0, 4, 8, 12, 16];
@@ -665,15 +672,15 @@ mod test {
         ];
 
         let positions = [
-            IVec3::new(2, 0, 0),
-            IVec3::new(5, 0, 0),
-            IVec3::new(10, 0, 0),
-            IVec3::new(19, 0, 0),
-            IVec3::new(24, 0, 0),
-            IVec3::new(27, 0, 0),
-            IVec3::new(30, 0, 0),
-            IVec3::new(33, 0, 0),
-            IVec3::new(36, 0, 0),
+            IVec3::new(0, 2, 0),
+            IVec3::new(0, 5, 0),
+            IVec3::new(0, 10, 0),
+            IVec3::new(0, 19, 0),
+            IVec3::new(0, 24, 0),
+            IVec3::new(0, 27, 0),
+            IVec3::new(0, 30, 0),
+            IVec3::new(0, 33, 0),
+            IVec3::new(0, 36, 0),
         ];
 
         let indices = [2, 5, 10, 19, 24, 27, 30, 33, 36];
@@ -770,7 +777,7 @@ mod test {
             vec![BlockType::Snow; 2],
         ].into_iter().flatten();
 
-        let positions = (0..18).map(|x| IVec3::new(x, 0, 0));
+        let positions = (0..18).map(|y| IVec3::new(0, y, 0));
 
         let mut start = (0, RunLength(0));
         for (block_to_place, position) in blocks_to_place.zip(positions) {
