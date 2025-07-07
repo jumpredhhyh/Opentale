@@ -59,6 +59,7 @@ pub struct RunLength(pub u32);
 pub type VoxelArray = Vec<(BlockType, RunLength)>;
 pub type VoxelPalette = [Vec4<u32>; 128];
 
+#[derive(Clone)]
 pub struct VoxelData {
     pub array: VoxelArray,
 }
@@ -131,6 +132,14 @@ impl VoxelData {
 
     pub fn set_block<T: Into<IVec3> + Clone>(&mut self, position: T, block: BlockType) {
         let index = Self::position_to_indexes(position.clone());
+
+        //uncomment below for debugging
+        let voxel_data_before = self.clone();
+        let count_before: u32 = self.array
+            .iter()
+            .map(|(_, RunLength(run_len))| run_len)
+            .sum();
+        //
 
         let mut count = 0;
 
@@ -264,6 +273,15 @@ impl VoxelData {
                 }
             }
 
+            // uncomment below for debugging
+            let count_after: u32 = self.array
+                .iter()
+                .map(|(_, RunLength(run_len))| run_len)
+                .sum();
+
+            assert_eq!(count_before, count_after, "total run length in {:?} changed unexpectently in {:?} after placing {block:?} at position {:?}", voxel_data_before.array, self.array, position.into());
+            //
+
             return;
         }
 
@@ -278,12 +296,20 @@ impl VoxelData {
     /// will be after this block, meaning if we set a block
     /// in position 68, we assume the next block will be
     /// set in positions 69 and greater
-    pub fn set_block_amortized<T: Into<IVec3>>(
+    pub fn set_block_amortized<T: Into<IVec3> + Clone>(
         &mut self, 
         (start_index, RunLength(start_count)): (usize, RunLength),
         position: T, block: BlockType
     ) -> (usize, RunLength) {
-        let index = Self::position_to_indexes(position);
+        let index = Self::position_to_indexes(position.clone());
+
+        //uncomment below for debugging
+        let voxel_data_before = self.clone();
+        let count_before: u32 = self.array
+            .iter()
+            .map(|(_, RunLength(run_len))| run_len)
+            .sum();
+        //
 
         if index < start_count as usize {
             panic!("index {index} should be greater than starting count {start_count}");
@@ -291,18 +317,25 @@ impl VoxelData {
 
         let mut count = start_count;
 
+        //uncomment below for debugging
+        let real_count: u32 = self.array[0..start_index].iter().map(|(_, RunLength(run_len))| run_len).sum();
+        assert_eq!(start_count, real_count);
+        //
+
         let mut i = start_index;
         let len = self.array.len();
         while i < len {
             let (curr_block, RunLength(run_len)) = self.array[i];
 
             if ((count + run_len) as usize) <= index {
+                //println!("checked run at index {i}, run {:?}, with count {count} and query index {index}", self.array[i]);
                 count += run_len;
                 i += 1;
                 continue;
             }
 
             if curr_block == block {
+                //println!("same block, no worries");
                 return (i, RunLength(count));
             }
 
@@ -310,6 +343,8 @@ impl VoxelData {
             pre_len = index - count as usize;
             post_len = ((count + run_len) as usize - 1) - index;
             let next_index;
+
+            //println!("checking run at index {i}, run {:?}, with count {count} and query index {index}, pre_len {pre_len}, post_len {post_len}", self.array[i]);                
 
             match (pre_len, post_len) {
                 (0, 0) => {
@@ -451,6 +486,16 @@ impl VoxelData {
                 }
             }
 
+            // uncomment below for debugging
+            let count_after: u32 = self.array
+                .iter()
+                .map(|(_, RunLength(run_len))| run_len)
+                .sum();
+
+            assert_eq!(count_before, count_after, "total run length in {:?} changed unexpectently in {:?} after placing {block:?} at position {:?}", voxel_data_before.array, self.array, position.into());
+            //
+
+            //println!("new count {count} and new index {next_index}");
             return (next_index, RunLength(count));
         }
 
