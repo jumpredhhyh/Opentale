@@ -68,19 +68,17 @@ impl Default for VoxelData {
 
 impl VoxelData {
     pub fn is_air<T: Into<IVec3>>(&self, position: T) -> bool {
-        let index = Self::position_to_indexes(position);
+        self.get_block(position) == BlockType::Air
+    }
 
-        let mut count = 0;
-
-        for (block_type, RunLength(run_len)) in &self.array {
-            if count + (*run_len as usize) < index {
-                count += *run_len as usize;
-                continue;
-            }
-            return *block_type == BlockType::Air;
-        }
-
-        panic!("{index} was out of bounds");
+    pub fn is_air_amortized<T: Into<IVec3>>(
+        &self, 
+        start: (usize, RunLength), 
+        position: T
+    ) -> (bool, (usize, RunLength)) {
+        let (block, next) = self.get_block_amortized(start, position);
+        let is_air = block == BlockType::Air;
+        return (is_air, next);
     }
 
     pub fn get_block<T: Into<IVec3>>(&self, position: T) -> BlockType {
