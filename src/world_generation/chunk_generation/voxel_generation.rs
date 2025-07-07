@@ -2,6 +2,7 @@ use crate::utils::div_floor;
 use crate::world_generation::chunk_generation::structure_generator::{
     StructureGenerator, StructureGeneratorCache,
 };
+use crate::world_generation::chunk_generation::voxel_types::RunLength;
 use crate::world_generation::chunk_generation::{BlockType, CHUNK_SIZE, VOXEL_SIZE};
 use crate::world_generation::chunk_loading::country_cache::{CountryCache, Path, PathLine};
 use crate::world_generation::generation_options::GenerationOptions;
@@ -60,8 +61,10 @@ pub fn generate_voxels(
         .map(|structure_generator| StructureGeneratorCache::new(structure_generator))
         .collect();
 
-    for x in 0..CHUNK_SIZE + 2 {
-        for z in 0..CHUNK_SIZE + 2 {
+    let mut get_block_start_a = (0, RunLength(0));
+    let mut get_block_start_b = (0, RunLength(0));
+    for z in 0..CHUNK_SIZE + 2 {
+        for x in 0..CHUNK_SIZE + 2 {
             let total_x = position[0] * CHUNK_SIZE as i32 + x as i32 * chunk_lod.multiplier_i32();
             let total_z = position[2] * CHUNK_SIZE as i32 + z as i32 * chunk_lod.multiplier_i32();
 
@@ -120,7 +123,8 @@ pub fn generate_voxels(
                 if y == CHUNK_SIZE as i32 + 1 + min_height {
                     generate_more = true;
                 }
-                blocks.set_block(
+                get_block_start_a = blocks.set_block_amortized(
+                    get_block_start_a,
                     [x as i32, y as i32 - min_height, z as i32],
                     // BlockType::Gray((biome_noise.get([total_x as f64, total_z as f64]) * 255.) as u8)
                     if is_path {
@@ -165,7 +169,11 @@ pub fn generate_voxels(
                             // BlockType::StructureDebug(r, g, b) => (r, g, b),
                             _ => (0u8, 0u8, 0u8),
                         };
-                    blocks.set_block([x as i32, top_terrain as i32, z as i32], BlockType::Stone);
+                    get_block_start_b = blocks.set_block_amortized(
+                        get_block_start_b, 
+                        [x as i32, top_terrain as i32, z as i32], 
+                        BlockType::Stone
+                    );
                 }
                 let mut rand = StdRng::seed_from_u64((structure_value.abs() * 10000.) as u64);
 
@@ -240,6 +248,7 @@ pub fn generate_voxels(
                         structure_noise_height_z as f64,
                     ]);
 
+
                     for (index, sub_structure) in structure_generator.get_structure_model(
                         IVec2 {
                             x: structure_offset_x,
@@ -271,6 +280,7 @@ pub fn generate_voxels(
                             generate_more = true;
                             break;
                         }
+                        //TODO: amortize this
                         blocks.set_block(
                             [
                                 x as i32,
