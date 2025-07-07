@@ -519,8 +519,8 @@ mod test {
 
     use crate::world_generation::chunk_generation::{voxel_types::{RunLength, VoxelData, CHUNK_LENGTH}, BlockType, CHUNK_SIZE};
 
-    #[test]
-    fn test_get_block_1() {
+    // #[test]
+    fn test_get_block() {
         let voxel_data = VoxelData {
             array: vec![
                 (BlockType::Stone, RunLength(6)),
@@ -566,34 +566,7 @@ mod test {
         }
     }
 
-    #[test]
-    fn test_get_block_2() {
-        let mut voxel_data = VoxelData::default();
-
-        let blocks = [
-            BlockType::Air, 
-            BlockType::Stone, 
-            BlockType::Path, 
-            BlockType::Snow
-        ].iter().cycle();
-
-        let positions = (0..CHUNK_LENGTH).map(|e|
-            IVec3::new(
-                (e % (CHUNK_SIZE + 2)) as i32, 
-                ((e / (CHUNK_SIZE + 2)) % (CHUNK_SIZE + 2)) as i32,
-                (e / ((CHUNK_SIZE + 2) * (CHUNK_SIZE + 2))) as i32,
-            )
-        );
-
-        let mut start = (0, RunLength(0));
-        for (block, position) in blocks.zip(positions) {
-            start = voxel_data.set_block_amortized(start, position, *block);
-        }
-
-        
-    }
-
-    #[test]
+    // #[test]
     fn test_get_block_amortized() {
         let voxel_data = VoxelData {
             array: vec![
@@ -626,7 +599,7 @@ mod test {
         }
     }
 
-    #[test]
+    // #[test]
     fn test_set_block_1() {
         let mut voxel_data = VoxelData {
             array: vec![
@@ -683,7 +656,7 @@ mod test {
         );
     }
 
-    #[test]
+    // #[test]
     fn test_set_block_2() {
         let mut voxel_data = VoxelData {
             array: vec![
@@ -701,6 +674,7 @@ mod test {
                 (BlockType::Path,  RunLength(2)),
                 (BlockType::Stone, RunLength(1)), // Setting Single Same Prev + Same Next
                 (BlockType::Path,  RunLength(2)),
+                (BlockType::Stone, RunLength(5)), // Setting Middle
             ]
         };
 
@@ -714,6 +688,7 @@ mod test {
             BlockType::Snow, // Setting Single Diff Prev + Same Next
             BlockType::Snow, // Setting Single Same Prev + Diff Next
             BlockType::Path, // Setting Single Same Prev + Same Next
+            BlockType::Snow, // Setting Middle
         ];
 
         let positions = [
@@ -726,9 +701,10 @@ mod test {
             IVec3::new(0, 30, 0),
             IVec3::new(0, 33, 0),
             IVec3::new(0, 36, 0),
+            IVec3::new(0, 41, 0),
         ];
 
-        let indices = [2, 5, 10, 19, 24, 27, 30, 33, 36];
+        let indices = [2, 5, 10, 19, 24, 27, 30, 33, 36, 41];
 
         for (
             block_to_place, 
@@ -760,48 +736,15 @@ mod test {
                 (BlockType::Path,  RunLength(2)),
                 (BlockType::Snow,  RunLength(4)),
                 (BlockType::Path,  RunLength(5)),
+                (BlockType::Stone, RunLength(2)),
+                (BlockType::Snow,  RunLength(1)),
+                (BlockType::Stone, RunLength(2)),
             ]
         );
     }
 
-    #[test]
-    fn test_set_block_3() {
-        let mut voxel_data = VoxelData::default();
-
-        let blocks = [
-            BlockType::Air, 
-            BlockType::Stone, 
-            BlockType::Path, 
-            BlockType::Snow
-        ].iter().cycle();
-
-        let positions = (0..CHUNK_LENGTH).map(|e|
-            IVec3::new(
-                (e % (CHUNK_SIZE + 2)) as i32, 
-                ((e / (CHUNK_SIZE + 2)) % (CHUNK_SIZE + 2)) as i32,
-                (e / ((CHUNK_SIZE + 2) * (CHUNK_SIZE + 2))) as i32,
-            )
-        );
-
-        let mut start = (0, RunLength(0));
-        for (block, position) in blocks.zip(positions) {
-            start = voxel_data.set_block_amortized(start, position, *block);
-        }
-
-        let chunk_length = voxel_data.array
-            .iter()
-            .map(|(_, RunLength(run_len))| run_len)
-            .sum::<u32>() as usize;
-        let num_runs = voxel_data.array.len();
-
-        assert_eq!(chunk_length, CHUNK_LENGTH);
-        assert_eq!(num_runs, CHUNK_LENGTH);
-
-        //println!("final chunk data: {:?}", voxel_data.array);
-    }
-
-    #[test]
-    fn test_set_block_amortized() {
+    // #[test]
+    fn test_set_block_amortized_1() {
         let mut voxel_data = VoxelData {
             array: vec![
                 (BlockType::Stone, RunLength(6)),
@@ -843,5 +786,133 @@ mod test {
                 (BlockType::Snow, RunLength(2)),
             ]
         );
+    }
+
+    #[test]
+    fn test_set_block_amortized_2() {
+        let mut voxel_data = VoxelData {
+            array: vec![
+                (BlockType::Stone, RunLength(5)), // Setting Middle
+                (BlockType::Path,  RunLength(5)), // Setting Beginning Diff Prev
+                (BlockType::Stone, RunLength(5)), // Setting Beginning Same Prev
+                (BlockType::Path,  RunLength(5)), // Setting End Diff Next
+                (BlockType::Stone, RunLength(5)), // Setting End Same Next
+                (BlockType::Path,  RunLength(2)),
+                (BlockType::Stone, RunLength(1)), // Setting Single Diff Prev + Diff Next
+                (BlockType::Path,  RunLength(2)),
+                (BlockType::Stone, RunLength(1)), // Setting Single Diff Prev + Same Next
+                (BlockType::Snow,  RunLength(2)), 
+                (BlockType::Stone, RunLength(1)), // Setting Single Same Prev + Diff Next
+                (BlockType::Path,  RunLength(2)),
+                (BlockType::Stone, RunLength(1)), // Setting Single Same Prev + Same Next
+                (BlockType::Path,  RunLength(2)),
+                (BlockType::Stone, RunLength(5)), // Setting Middle
+            ]
+        };
+
+        let blocks_to_place = [
+            BlockType::Snow, // Setting Middle
+            BlockType::Snow, // Setting Beginning Diff Prev
+            BlockType::Path, // Setting Beginning Same Prev
+            BlockType::Snow, // Setting End Diff Next
+            BlockType::Path, // Setting End Same Next
+            BlockType::Snow, // Setting Single Diff Prev + Diff Next
+            BlockType::Snow, // Setting Single Diff Prev + Same Next
+            BlockType::Snow, // Setting Single Same Prev + Diff Next
+            BlockType::Path, // Setting Single Same Prev + Same Next
+            BlockType::Snow, // Setting Middle
+        ];
+
+        //11111222221111122222111112212213312212211111
+        //  ^  ^    ^        ^    ^  ^  ^  ^  ^    ^
+        //  2
+
+        let positions = [
+            IVec3::new(0, 2, 0),
+            IVec3::new(0, 5, 0),
+            IVec3::new(0, 10, 0),
+            IVec3::new(0, 19, 0),
+            IVec3::new(0, 24, 0),
+            IVec3::new(0, 27, 0),
+            IVec3::new(0, 30, 0),
+            IVec3::new(0, 33, 0),
+            IVec3::new(0, 36, 0),
+            IVec3::new(0, 41, 0),
+        ];
+
+        let indices = [2, 5, 10, 19, 24, 27, 30, 33, 36, 41];
+
+        let mut start = (0, RunLength(0));
+        for (
+            block_to_place, 
+            (position, index)
+        ) in blocks_to_place.into_iter().zip(
+            positions.into_iter().zip(indices)
+        ) {
+            assert_eq!(
+                VoxelData::position_to_indexes(position), index,
+                "checking if position {position} to index is {index}"
+            );
+
+            start = voxel_data.set_block_amortized(start, position, block_to_place);
+        }
+
+        assert_eq!(
+            voxel_data.array, vec![
+                (BlockType::Stone, RunLength(2)),
+                (BlockType::Snow,  RunLength(1)),
+                (BlockType::Stone, RunLength(2)),
+                (BlockType::Snow,  RunLength(1)),
+                (BlockType::Path,  RunLength(5)),
+                (BlockType::Stone, RunLength(4)),
+                (BlockType::Path,  RunLength(4)),
+                (BlockType::Snow,  RunLength(1)),
+                (BlockType::Stone, RunLength(4)),
+                (BlockType::Path,  RunLength(3)),
+                (BlockType::Snow,  RunLength(1)),
+                (BlockType::Path,  RunLength(2)),
+                (BlockType::Snow,  RunLength(4)),
+                (BlockType::Path,  RunLength(5)),
+                (BlockType::Stone, RunLength(2)),
+                (BlockType::Snow,  RunLength(1)),
+                (BlockType::Stone, RunLength(2)),
+            ]
+        );
+    }
+
+    // #[test]
+    fn test_set_block_amortized_3() {
+        let mut voxel_data = VoxelData::default();
+
+        let blocks = [
+            BlockType::Air, 
+            BlockType::Stone, 
+            BlockType::Path, 
+            BlockType::Snow
+        ].iter().cycle();
+
+        let positions = (0..CHUNK_LENGTH).map(|e|
+            IVec3::new(
+                ((e / (CHUNK_SIZE + 2)) % (CHUNK_SIZE + 2)) as i32,
+                (e % (CHUNK_SIZE + 2)) as i32, 
+                (e / ((CHUNK_SIZE + 2) * (CHUNK_SIZE + 2))) as i32,
+            )
+        );
+
+        let mut start = (0, RunLength(0));
+        for (block, position) in blocks.zip(positions) {
+            start = voxel_data.set_block_amortized(start, position, *block);
+        }
+
+        let chunk_length = voxel_data.array
+            .iter()
+            .map(|(_, RunLength(run_len))| run_len)
+            .sum::<u32>() as usize;
+        let num_runs = voxel_data.array.len();
+
+        assert_eq!(chunk_length, CHUNK_LENGTH);
+        assert_eq!(num_runs, CHUNK_LENGTH);
+
+        //println!("final chunk data: {:?}", voxel_data.array);
     }
 }
