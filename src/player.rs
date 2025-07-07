@@ -58,7 +58,7 @@ fn spawn_player(
     // Player
     commands.spawn((
         RigidBody::KinematicPositionBased,
-        Transform::from_xyz(0., 2000., 0.),
+        Transform::from_xyz(0., 2200., 0.),
         Collider::cuboid(0.4, 0.9, 0.4),
         KinematicCharacterController {
             offset: CharacterLength::Absolute(0.01),

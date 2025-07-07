@@ -94,7 +94,8 @@ pub fn generate_mesh(
                     }
 
                     let uv_start = Vec2::ZERO;
-                    let uv_end = Vec2::new(width as f32, height as f32);
+                    let uv_end =
+                        Vec2::new(width as f32, height as f32) * chunk_lod.multiplier_f32();
 
                     uvs.extend_from_slice(&[
                         [uv_end.x, uv_end.y],
