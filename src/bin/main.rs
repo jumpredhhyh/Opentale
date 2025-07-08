@@ -7,7 +7,7 @@ use bevy_inspector_egui::bevy_egui::EguiPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_panorbit_camera::PanOrbitCameraPlugin;
 use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
-use opentale::animations::AnimationPlugin;
+use opentale::animation::animation_plugin::OpentaleAnimationPlugin;
 use opentale::debug_tools::debug_plugin::OpentaleDebugPlugin;
 use opentale::player::PlayerPlugin;
 use opentale::ui::game_ui_plugin::GameUiPlugin;
@@ -35,7 +35,7 @@ fn main() {
             //RapierDebugRenderPlugin::default(),
             PlayerPlugin,
             WireframePlugin { ..default() },
-            AnimationPlugin,
+            OpentaleAnimationPlugin,
             //BirdCameraPlugin,
             EguiPlugin {
                 enable_multipass_for_primary_context: false,

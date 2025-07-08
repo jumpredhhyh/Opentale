@@ -1,4 +1,4 @@
-use crate::animations::DespawnAnimation;
+use crate::animation::despawn_animation::DespawnAnimation;
 use crate::world_generation::chunk_generation::{
     ChunkGenerationTask, ChunkGenerator, ChunkParent, CHUNK_SIZE, VOXEL_SIZE,
 };
