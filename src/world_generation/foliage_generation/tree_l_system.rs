@@ -1,5 +1,8 @@
 use crate::{
-    utils::{rotate_around, vec_round_to_int, RotationDirection},
+    utils::{
+        rotation::{rotate_around, RotationDirection},
+        vec_utils::vec_round_to_int,
+    },
     world_generation::{
         chunk_generation::{BlockType, VOXEL_SIZE},
         foliage_generation::entry_range::EntryRange,

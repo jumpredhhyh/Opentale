@@ -1,4 +1,4 @@
-use crate::utils::div_floor;
+use crate::utils::div_floor::div_floor;
 use crate::world_generation::chunk_generation::structure_generator::{
     StructureGenerator, StructureGeneratorCache,
 };

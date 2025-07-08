@@ -4,7 +4,7 @@ use bevy::math::{Quat, Vec3};
 use rand::{rngs::StdRng, Rng};
 
 use crate::{
-    utils::{rotate_around, RotationDirection},
+    utils::rotation::{rotate_around, RotationDirection},
     world_generation::{
         chunk_generation::{BlockType, VOXEL_SIZE},
         foliage_generation::{
