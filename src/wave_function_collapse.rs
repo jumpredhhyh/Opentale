@@ -19,8 +19,7 @@ pub struct WaveFunctionCollapsePlugin;
 
 impl Plugin for WaveFunctionCollapsePlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_plugins(BirdCameraPlugin)
-            .add_systems(Startup, startup);
+        app.add_systems(Startup, startup);
     }
 }
 
@@ -98,8 +97,6 @@ fn spawn_sprite(
 }
 
 use bitflags::bitflags;
-
-use crate::bird_camera::BirdCameraPlugin;
 
 bitflags! {
     #[derive(Clone, Copy, PartialEq)]

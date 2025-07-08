@@ -1,7 +1,6 @@
 extern crate core;
 
 pub mod animation;
-pub mod bird_camera;
 pub mod debug_tools;
 pub mod player;
 pub mod ui;
