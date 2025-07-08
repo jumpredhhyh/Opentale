@@ -2,6 +2,6 @@ mod fps_text;
 pub mod game_ui_plugin;
 mod main_menu_data;
 mod main_menu_plugin;
-mod main_menu_state;
+pub mod main_menu_state;
 mod task_text;
 mod triangle_count_text;

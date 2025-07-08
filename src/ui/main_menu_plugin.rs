@@ -4,7 +4,6 @@ use bevy::prelude::*;
 use bevy_inspector_egui::{bevy_egui::EguiContexts, egui};
 
 use crate::{
-    player::PlayerSpawnCallback,
     ui::{main_menu_data::MainMenuData, main_menu_state::MainMenuState},
     world_generation::generation_options::GenerationOptionsResource,
 };
@@ -27,9 +26,7 @@ fn render_main_menu(
     mut menu_data: ResMut<MainMenuData>,
     mut menu_state: ResMut<NextState<MainMenuState>>,
     mut gen_options: ResMut<GenerationOptionsResource>,
-    player_spawn_callback: Res<PlayerSpawnCallback>,
     mut contexts: EguiContexts,
-    mut commands: Commands,
 ) {
     let ctx = contexts.ctx_mut();
 
@@ -47,8 +44,6 @@ fn render_main_menu(
                 *gen_options = GenerationOptionsResource::from_seed(seed);
 
                 menu_state.set(MainMenuState::Hidden);
-
-                let _ = commands.run_system(player_spawn_callback.0);
             }
         });
     });

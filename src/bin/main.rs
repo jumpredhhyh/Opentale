@@ -9,7 +9,7 @@ use bevy_panorbit_camera::PanOrbitCameraPlugin;
 use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
 use opentale::animation::animation_plugin::OpentaleAnimationPlugin;
 use opentale::debug_tools::debug_plugin::OpentaleDebugPlugin;
-use opentale::player::PlayerPlugin;
+use opentale::player::player_plugin::PlayerPlugin;
 use opentale::ui::game_ui_plugin::GameUiPlugin;
 use opentale::world_generation::array_texture::ArrayTextureMaterial;
 use opentale::world_generation::WorldGenerationPlugin;
@@ -36,7 +36,6 @@ fn main() {
             PlayerPlugin,
             WireframePlugin { ..default() },
             OpentaleAnimationPlugin,
-            //BirdCameraPlugin,
             EguiPlugin {
                 enable_multipass_for_primary_context: false,
             },

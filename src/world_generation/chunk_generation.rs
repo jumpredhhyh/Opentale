@@ -1,5 +1,5 @@
 use crate::debug_tools::debug_resource::OpentaleDebugResource;
-use crate::player::Player;
+use crate::player::player_component::Player;
 use crate::world_generation::chunk_generation::voxel_generation::get_terrain_noise;
 use crate::world_generation::chunk_loading::chunk_loader::{
     get_chunk_position, ChunkLoader, ChunkLoaderPlugin,
