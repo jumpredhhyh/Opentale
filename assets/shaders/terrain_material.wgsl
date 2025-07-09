@@ -59,8 +59,8 @@ fn fragment(
     var voxel_pos = vec3<u32>((adjusted_world_pos / chunk_size - (vec3<f32>(chunk_pos_no_height) / f32(terrain_material.chunk_lod))) * 64);
 
     var blocks_index = voxel_pos.x + voxel_pos.y * 66 + voxel_pos.z * 66 * 66;
-    var outer_index = blocks_index / 16;
-    var inner_index = blocks_index % 16;
+    var outer_index = blocks_index / 32;
+    var inner_index = blocks_index % 32;
     var number = terrain_material.chunk_blocks[outer_index][inner_index / 4];
     var number_mask: u32 = 0xffu << (inner_index % 4 * 8);
     var palette_index = (number & number_mask) >> (inner_index % 4 * 8);
