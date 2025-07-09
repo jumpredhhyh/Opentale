@@ -7,12 +7,12 @@ use bevy_inspector_egui::bevy_egui::EguiPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_panorbit_camera::PanOrbitCameraPlugin;
 use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
-use spellhaven::animations::AnimationPlugin;
-use spellhaven::debug_tools::debug_resource::SpellhavenDebugPlugin;
-use spellhaven::player::PlayerPlugin;
-use spellhaven::ui::ui::GameUiPlugin;
-use spellhaven::world_generation::array_texture::ArrayTextureMaterial;
-use spellhaven::world_generation::WorldGenerationPlugin;
+use opentale::animations::AnimationPlugin;
+use opentale::debug_tools::debug_resource::SpellhavenDebugPlugin;
+use opentale::player::PlayerPlugin;
+use opentale::ui::ui::GameUiPlugin;
+use opentale::world_generation::array_texture::ArrayTextureMaterial;
+use opentale::world_generation::WorldGenerationPlugin;
 use std::f32::consts::PI;
 
 fn main() {
@@ -21,7 +21,7 @@ fn main() {
             DefaultPlugins
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        title: "Spellhaven".into(),
+                        title: "Opentale".into(),
                         present_mode: PresentMode::Immediate,
                         ..default()
                     }),

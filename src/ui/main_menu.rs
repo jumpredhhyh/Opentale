@@ -60,7 +60,7 @@ fn spawn_main_menu(
 
     egui::CentralPanel::default().show(ctx, |ui| {
         ui.vertical_centered(|ui| {
-            ui.heading("SpellHaven");
+            ui.heading("Opentale Pre-Alpha");
 
             ui.text_edit_singleline(&mut menu_state.seed);
             if ui.button("Start").clicked() {

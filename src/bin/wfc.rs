@@ -1,6 +1,6 @@
 use bevy::{pbr::wireframe::WireframeConfig, prelude::*, window::PresentMode};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use spellhaven::wave_function_collapse::WaveFunctionCollapsePlugin;
+use opentale::wave_function_collapse::WaveFunctionCollapsePlugin;
 
 fn main() {
     App::new()
@@ -8,7 +8,7 @@ fn main() {
             DefaultPlugins
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        title: "Spellhaven".into(),
+                        title: "Opentale".into(),
                         present_mode: PresentMode::Immediate,
                         ..default()
                     }),

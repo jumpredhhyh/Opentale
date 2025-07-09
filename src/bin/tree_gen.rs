@@ -12,17 +12,17 @@ use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin};
 use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
 use fastnoise_lite::FastNoiseLite;
 use rand::{rng, RngCore};
-use spellhaven::animations::AnimationPlugin;
-use spellhaven::debug_tools::debug_resource::SpellhavenDebugPlugin;
-use spellhaven::terrain_material::TerrainMaterial;
-use spellhaven::world_generation::chunk_generation::mesh_generation::generate_mesh;
-use spellhaven::world_generation::chunk_generation::pine_structure_generator::PineStructureGenerator;
-use spellhaven::world_generation::chunk_generation::structure_generator::{
+use opentale::animations::AnimationPlugin;
+use opentale::debug_tools::debug_resource::SpellhavenDebugPlugin;
+use opentale::terrain_material::TerrainMaterial;
+use opentale::world_generation::chunk_generation::mesh_generation::generate_mesh;
+use opentale::world_generation::chunk_generation::pine_structure_generator::PineStructureGenerator;
+use opentale::world_generation::chunk_generation::structure_generator::{
     StructureGenerator, VoxelStructureMetadata,
 };
-use spellhaven::world_generation::chunk_generation::voxel_types::VoxelData;
-use spellhaven::world_generation::chunk_generation::{BlockType, CHUNK_SIZE, VOXEL_SIZE};
-use spellhaven::world_generation::voxel_world::ChunkLod;
+use opentale::world_generation::chunk_generation::voxel_types::VoxelData;
+use opentale::world_generation::chunk_generation::{BlockType, CHUNK_SIZE, VOXEL_SIZE};
+use opentale::world_generation::voxel_world::ChunkLod;
 use std::f32::consts::PI;
 
 fn main() {
@@ -30,7 +30,7 @@ fn main() {
         .add_plugins((
             DefaultPlugins.set(WindowPlugin {
                 primary_window: Some(Window {
-                    title: "Spellhaven".into(),
+                    title: "Opentale".into(),
                     present_mode: PresentMode::Immediate,
                     ..default()
                 }),
